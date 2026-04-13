@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowLeftRight } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 import './CalendarWidget.css';
 
-// Mock data specific to the current month to show activity
-const MOCK_CALENDAR_DATA = {
-  // Key represents the date number
-  '6': { count: 9, net: -314.34 },
-  '12': { count: 2, net: 150.00 },
-  '18': { count: 5, net: 840.50 },
-  '24': { count: 1, net: -20.00 }
-};
-
 export default function CalendarWidget() {
+  const { dashboardData } = useAppContext();
+  const transactions = dashboardData?.transactions || [];
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const year = currentDate.getFullYear();
@@ -41,6 +35,18 @@ export default function CalendarWidget() {
     const today = new Date();
     const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
 
+    const calendarData = {};
+    transactions.forEach(tx => {
+      if (!tx.date) return;
+      const txDate = new Date(tx.date);
+      if (txDate.getFullYear() === year && txDate.getMonth() === month) {
+        const day = txDate.getDate().toString();
+        if (!calendarData[day]) calendarData[day] = { count: 0, net: 0 };
+        calendarData[day].count += 1;
+        calendarData[day].net += tx.type === 'profit' ? Number(tx.amount) : -Number(tx.amount);
+      }
+    });
+
     // Blank cells before the 1st
     for (let i = 0; i < firstDayOfMonth; i++) {
        cells.push(<div key={`empty-${i}`} className="calendar-cell empty"></div>);
@@ -49,7 +55,7 @@ export default function CalendarWidget() {
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday = isCurrentMonth && today.getDate() === day;
-      const data = MOCK_CALENDAR_DATA[day.toString()];
+      const data = calendarData[day.toString()];
       const isNegative = data && data.net < 0;
       const isPositive = data && data.net > 0;
 

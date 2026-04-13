@@ -7,11 +7,7 @@ import { apiCall } from '../api';
 import CalendarWidget from '../components/CalendarWidget';
 import './Dashboard.css';
 
-const MOCK_CHART = [
-  { name: 'Mon', earning: 120 }, { name: 'Tue', earning: 300 },
-  { name: 'Wed', earning: 250 }, { name: 'Thu', earning: 480 },
-  { name: 'Fri', earning: 700 }, { name: 'Sat', earning: 650 }, { name: 'Sun', earning: 950 },
-];
+
 
 export default function Dashboard({ onLogout }) {
   const navigate = useNavigate();
@@ -52,6 +48,21 @@ export default function Dashboard({ onLogout }) {
     const today = accTxs.filter(tx => tx.date && tx.date.startsWith(todayDateStr)).reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
     return { ...acc, overall, today };
   });
+
+  const chartData = [];
+  const todayObj = new Date();
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(todayObj);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    
+    const dailyEarning = transactions
+      .filter(tx => tx.date && tx.date.startsWith(dateStr) && tx.type === 'profit')
+      .reduce((sum, tx) => sum + Number(tx.amount), 0);
+      
+    chartData.push({ name: dayNames[d.getDay()], earning: dailyEarning });
+  }
 
   const handleUpdateTarget = async () => {
     if(!newTarget) return;
@@ -143,7 +154,7 @@ export default function Dashboard({ onLogout }) {
         </div>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
-            <AreaChart data={MOCK_CHART} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorEarning" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3}/>

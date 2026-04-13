@@ -6,10 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import { apiCall } from '../api';
 import './AccountDetails.css';
 
-const MOCK_CHART = [
-  { name: 'Mon', earning: 50 }, { name: 'Tue', earning: 120 }, { name: 'Wed', earning: 30 },
-  { name: 'Thu', earning: 60 }, { name: 'Fri', earning: 150 },
-];
+
 
 export default function AccountDetails() {
   const { id } = useParams();
@@ -30,6 +27,22 @@ export default function AccountDetails() {
 
   const accountTxs = dashboardData.transactions.filter(t => String(t.accountId) === String(id)).reverse(); // Latest first
   const overall = accountTxs.reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
+
+  const chartData = [];
+  const todayDate = new Date();
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(todayDate);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    
+    // We strictly graph positive earnings here per request
+    const dailyEarning = accountTxs
+      .filter(tx => tx.date && tx.date.startsWith(dateStr) && tx.type === 'profit')
+      .reduce((sum, tx) => sum + Number(tx.amount), 0);
+      
+    chartData.push({ name: dayNames[d.getDay()], earning: dailyEarning });
+  }
 
   const handleTransaction = async (e) => {
     e.preventDefault();
@@ -99,7 +112,7 @@ export default function AccountDetails() {
         <h3>7-Day Performance</h3>
         <div style={{ width: '100%', height: 200, marginTop: '1rem' }}>
           <ResponsiveContainer>
-            <AreaChart data={MOCK_CHART} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorAcc" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3}/>
