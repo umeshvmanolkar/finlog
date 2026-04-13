@@ -1,0 +1,174 @@
+.account-page {
+  padding: 2rem 0;
+  max-width: 800px;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.back-btn {
+  padding: 0.6rem 1rem;
+}
+
+.account-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-wrapper {
+  background: rgba(236, 72, 153, 0.1);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balance-overview {
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.balance-overview p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.balance-amount {
+  font-size: 3rem;
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.action-buttons .btn {
+  flex: 1;
+}
+
+.btn-profit {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-profit:hover {
+  background: rgba(16, 185, 129, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-loss {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-loss:hover {
+  background: rgba(239, 68, 68, 0.25);
+  transform: translateY(-2px);
+}
+
+.transaction-form {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border);
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-header h3 {
+  font-size: 1.1rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: white;
+}
+
+.transaction-form .input-group {
+  margin-bottom: 1rem;
+}
+
+.transactions-list {
+  margin-top: 2rem;
+}
+
+.transactions-list h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.tx-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+}
+
+.tx-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tx-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tx-icon.profit { background: var(--success-bg); color: var(--success); }
+.tx-icon.loss { background: var(--danger-bg); color: var(--danger); }
+
+.tx-info h4 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.tx-info p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tx-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.tx-amount.profit { color: var(--success); }
+.tx-amount.loss { color: var(--danger); }
