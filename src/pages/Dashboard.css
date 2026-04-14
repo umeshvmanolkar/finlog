@@ -87,12 +87,12 @@
 }
 
 .stacked-progress-segment.withdrawn {
-  background: var(--accent-secondary);
+  background: var(--border);
   border-right: 1px solid rgba(0,0,0,0.2);
 }
 
 .stacked-progress-segment.remaining {
-  background: var(--accent-primary);
+  background: var(--success);
 }
 
 .segment-label {

@@ -34,10 +34,10 @@ export default function Dashboard({ onLogout }) {
   const transactions = data.transactions || [];
 
   // Calculate totals
-  const totalOverall = transactions.reduce((sum, tx) => {
-    if (tx.type === 'profit') return sum + Number(tx.amount);
-    if (tx.type === 'loss') return sum - Number(tx.amount);
-    return sum;
+  const totalOverall = accounts.reduce((total, acc) => {
+    const accTxs = transactions.filter(t => t.accountId === acc.id);
+    const accOverall = accTxs.reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
+    return total + accOverall;
   }, 0);
   
   const totalWithdrawn = transactions.reduce((sum, tx) => tx.type === 'withdraw' ? sum + Number(tx.amount) : sum, 0);
@@ -45,13 +45,11 @@ export default function Dashboard({ onLogout }) {
   
   // Quick hack: 'date' in JS today matched
   const todayDateStr = new Date().toISOString().split('T')[0];
-  const totalToday = transactions
-    .filter(tx => tx.date && tx.date.startsWith(todayDateStr))
-    .reduce((sum, tx) => {
-      if (tx.type === 'profit') return sum + Number(tx.amount);
-      if (tx.type === 'loss') return sum - Number(tx.amount);
-      return sum;
-    }, 0);
+  const totalToday = accounts.reduce((total, acc) => {
+    const accTxs = transactions.filter(t => t.accountId === acc.id);
+    const accToday = accTxs.filter(tx => tx.date && tx.date.startsWith(todayDateStr)).reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
+    return total + accToday;
+  }, 0);
     
   const progress = target > 0 ? Math.min((totalOverall / target) * 100, 100) : 0;
   const todayProgress = target > 0 ? ((totalToday / target) * 100).toFixed(2) : 0;
