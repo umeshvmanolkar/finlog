@@ -182,16 +182,22 @@ export default function Dashboard({ onLogout }) {
             <span style={{ color: 'var(--text-muted)', fontSize: '1.2rem', fontWeight: 500 }}>/ {target.toLocaleString()}</span>
           </div>
 
-          <div style={{ position: 'relative', marginBottom: '2rem', marginTop: '1.5rem', paddingBottom: '0.5rem' }}>
-            <div className="progress-bubble" style={{ left: `${withdrawnPercent + remainingPercent}%` }}>
-              ₹ {totalOverall.toLocaleString()}
+          <div style={{ position: 'relative', marginBottom: '2.5rem', marginTop: '2.5rem', paddingBottom: '0.5rem' }}>
+            <div className="progress-bubble" style={{ left: `${withdrawnPercent + remainingPercent}%`, zIndex: 11 }}>
+              Total: ₹ {totalOverall.toLocaleString()}
             </div>
+            
+            {withdrawnPercent > 0 && (
+              <div className="progress-bubble withdraw-bubble" style={{ left: `${withdrawnPercent}%`, transform: 'translateX(-100%)', marginLeft: '-10px', background: '#1c1e29', color: '#ec4899', borderColor: '#ec4899', zIndex: 10 }}>
+                Withdrawn: ₹ {totalWithdrawn.toLocaleString()}
+              </div>
+            )}
+
             <div className="stacked-progress-bg">
               <div className="stacked-progress-segment withdrawn" style={{ width: `${withdrawnPercent}%` }}>
-                 {withdrawnPercent > 5 && <span className="segment-label">₹ {totalWithdrawn.toLocaleString()}</span>}
               </div>
               <div className="stacked-progress-segment remaining" style={{ width: `${remainingPercent}%` }}>
-                 {remainingPercent > 5 && <span className="segment-label">₹ {remainingBalance.toLocaleString()}</span>}
+                 {remainingPercent > 5 && <span className="segment-label">Remaining: ₹ {remainingBalance.toLocaleString()}</span>}
               </div>
             </div>
           </div>
