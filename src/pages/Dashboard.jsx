@@ -47,7 +47,11 @@ export default function Dashboard({ onLogout }) {
   const todayDateStr = new Date().toISOString().split('T')[0];
   const totalToday = transactions
     .filter(tx => tx.date && tx.date.startsWith(todayDateStr))
-    .reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
+    .reduce((sum, tx) => {
+      if (tx.type === 'profit') return sum + Number(tx.amount);
+      if (tx.type === 'loss') return sum - Number(tx.amount);
+      return sum;
+    }, 0);
     
   const progress = target > 0 ? Math.min((totalOverall / target) * 100, 100) : 0;
   const todayProgress = target > 0 ? ((totalToday / target) * 100).toFixed(2) : 0;
