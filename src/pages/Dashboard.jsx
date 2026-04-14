@@ -183,12 +183,12 @@ export default function Dashboard({ onLogout }) {
           </div>
 
           <div style={{ position: 'relative', marginBottom: '2.5rem', marginTop: '2.5rem', paddingBottom: '0.5rem' }}>
-            <div className="progress-bubble" style={{ left: `${withdrawnPercent + remainingPercent}%`, zIndex: 11 }}>
+            <div className="progress-bubble total-bubble" style={{ left: `${withdrawnPercent + remainingPercent}%` }}>
               Total: ₹ {totalOverall.toLocaleString()}
             </div>
             
             {withdrawnPercent > 0 && (
-              <div className="progress-bubble withdraw-bubble" style={{ left: `${withdrawnPercent}%`, transform: 'translateX(-100%)', marginLeft: '-10px', background: '#1c1e29', color: '#ec4899', borderColor: '#ec4899', zIndex: 10 }}>
+              <div className="progress-bubble withdraw-bubble" style={{ left: `${withdrawnPercent}%` }}>
                 Withdrawn: ₹ {totalWithdrawn.toLocaleString()}
               </div>
             )}
