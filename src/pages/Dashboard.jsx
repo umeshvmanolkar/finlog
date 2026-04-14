@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Target, TrendingUp, Wallet, Plus, LogOut, Activity, Edit2, Loader } from 'lucide-react';
+import { Target, TrendingUp, Wallet, Plus, LogOut, Activity, Edit2, Loader, ArrowDownCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAppContext } from '../context/AppContext';
 import { apiCall } from '../api';
@@ -19,6 +19,10 @@ export default function Dashboard({ onLogout }) {
   const [newSourceName, setNewSourceName] = useState('');
   const [savingTarget, setSavingTarget] = useState(false);
   const [savingSource, setSavingSource] = useState(false);
+  
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [savingWithdraw, setSavingWithdraw] = useState(false);
 
   if (loading && !dashboardData) {
     return <div className="container dashboard-page flex-center" style={{minHeight:'80vh'}}><Loader className="animate-spin" size={40} color="var(--accent-primary)"/></div>;
@@ -30,7 +34,14 @@ export default function Dashboard({ onLogout }) {
   const transactions = data.transactions || [];
 
   // Calculate totals
-  const totalOverall = transactions.reduce((sum, tx) => tx.type === 'profit' ? sum + Number(tx.amount) : sum - Number(tx.amount), 0);
+  const totalOverall = transactions.reduce((sum, tx) => {
+    if (tx.type === 'profit') return sum + Number(tx.amount);
+    if (tx.type === 'loss') return sum - Number(tx.amount);
+    return sum;
+  }, 0);
+  
+  const totalWithdrawn = transactions.reduce((sum, tx) => tx.type === 'withdraw' ? sum + Number(tx.amount) : sum, 0);
+  const remainingBalance = totalOverall - totalWithdrawn;
   
   // Quick hack: 'date' in JS today matched
   const todayDateStr = new Date().toISOString().split('T')[0];
@@ -40,6 +51,9 @@ export default function Dashboard({ onLogout }) {
     
   const progress = target > 0 ? Math.min((totalOverall / target) * 100, 100) : 0;
   const todayProgress = target > 0 ? ((totalToday / target) * 100).toFixed(2) : 0;
+  
+  const withdrawnPercent = target > 0 ? Math.min((totalWithdrawn / target) * 100, 100) : 0;
+  const remainingPercent = target > 0 ? Math.min((remainingBalance / target) * 100, 100) : 0;
 
   // Compute account balances
   const enrichedAccounts = accounts.map(acc => {
@@ -92,6 +106,21 @@ export default function Dashboard({ onLogout }) {
     setSavingSource(false);
   };
 
+  const handleWithdraw = async (e) => {
+    e.preventDefault();
+    if(!withdrawAmount) return;
+    setSavingWithdraw(true);
+    try {
+      await apiCall('addTransaction', { userId: user.id, accountId: 'GLOBAL', amount: Number(withdrawAmount), type: 'withdraw' });
+      await refreshDashboard();
+      setWithdrawAmount('');
+      setShowWithdraw(false);
+    } catch(err) {
+      console.error(err);
+    }
+    setSavingWithdraw(false);
+  };
+
   return (
     <div className="container dashboard-page">
       <header className="dashboard-header animate-fade-in">
@@ -119,6 +148,13 @@ export default function Dashboard({ onLogout }) {
               >
                 {savingTarget ? <Loader size={14} className="animate-spin"/> : <Edit2 size={14} color="var(--text-muted)" />}
               </button>
+              <button 
+                className="btn btn-outline" 
+                style={{ padding: '0.2rem 0.5rem', background: 'transparent', border: '1px solid var(--border)', fontSize: '0.8rem', display: 'flex', gap: '0.25rem', alignItems: 'center' }}
+                onClick={() => setShowWithdraw(!showWithdraw)}
+              >
+                <ArrowDownCircle size={14} color="var(--text-muted)" /> Withdraw
+              </button>
             </div>
             <div className="stat-icon primary"><Wallet size={20} /></div>
           </div>
@@ -130,13 +166,32 @@ export default function Dashboard({ onLogout }) {
              </div>
           )}
 
+          {showWithdraw && (
+             <form style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', background: 'rgba(37, 99, 235, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(37, 99, 235, 0.2)' }} onSubmit={handleWithdraw}>
+                <input type="number" required className="input-field" style={{ padding: '0.5rem' }} value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} placeholder="Amount to withdraw" disabled={savingWithdraw}/>
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.5rem 1rem', background: '#2563eb' }} disabled={savingWithdraw}>
+                  {savingWithdraw ? 'Processing...' : 'Withdraw'}
+                </button>
+             </form>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '1rem' }}>
             <span className="stat-value" style={{ marginBottom: 0 }}>₹ {totalOverall.toLocaleString()}</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '1.2rem', fontWeight: 500 }}>/ {target.toLocaleString()}</span>
           </div>
 
-          <div className="progress-bar-bg" style={{ height: '8px', marginBottom: '0.75rem' }}>
-            <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+          <div style={{ position: 'relative', marginBottom: '2rem', marginTop: '1.5rem', paddingBottom: '0.5rem' }}>
+            <div className="progress-bubble" style={{ left: `${withdrawnPercent + remainingPercent}%` }}>
+              ₹ {totalOverall.toLocaleString()}
+            </div>
+            <div className="stacked-progress-bg">
+              <div className="stacked-progress-segment withdrawn" style={{ width: `${withdrawnPercent}%` }}>
+                 {withdrawnPercent > 5 && <span className="segment-label">₹ {totalWithdrawn.toLocaleString()}</span>}
+              </div>
+              <div className="stacked-progress-segment remaining" style={{ width: `${remainingPercent}%` }}>
+                 {remainingPercent > 5 && <span className="segment-label">₹ {remainingBalance.toLocaleString()}</span>}
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
